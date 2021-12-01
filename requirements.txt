@@ -1,0 +1,6 @@
+pyworld==0.2.4
+librosa
+numpy
+matplotlib
+tensorflow==2.6.0
+scipy
