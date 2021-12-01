@@ -2,6 +2,8 @@ from os import walk
 from typing import Optional, List, Tuple
 import os
 import sys
+
+# Should be installed: youtube-dl , ffmpeg
 '''
 try:
         link = sys.argv[1]
