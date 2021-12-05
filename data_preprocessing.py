@@ -5,6 +5,7 @@ from typing import Optional, List, Tuple
 import os
 import sys
 import shutil
+import subprocess
 
 # Should be installed: youtube-dl , ffmpeg
 '''
@@ -18,10 +19,14 @@ except IndexError:
 
 # mypath should be Absolute Path
 def download_youtube_wavfile(link:List, mypath:str):
+    if not os.path.exists(mypath):
+        os.makedirs(mypath)
     os.chdir(mypath)
     for idx ,f_link in enumerate(link):
-        os.system("youtube-dl --rm-cache-dir")
-        os.system("youtube-dl --extract-audio " + f_link)
+        p = subprocess.Popen("youtube-dl --rm-cache-dir", shell=True)
+        p.wait()
+        p = subprocess.Popen("youtube-dl --extract-audio " + f_link, shell=True)
+        p.wait()
         vidID= f_link.split("=")[1]
         print("VidID = " + vidID)
         f = []
@@ -35,7 +40,8 @@ def download_youtube_wavfile(link:List, mypath:str):
                 print(vidName)
                 cmdstr = "ffmpeg -i \"" + vidName + "\" -f wav -flags bitexact " + str(idx) + ".wav"
                 print(cmdstr)
-                os.system(cmdstr)
+                p = subprocess.Popen(cmdstr,shell=True)
+                p.wait()
                 os.remove(vidName) #Will remove original opus file. Comment it if you want to keep that file.
 
 if __name__ == '__main__':
