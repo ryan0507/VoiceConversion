@@ -5,21 +5,18 @@
 #Preprocess Dataset
 
 0. Install <b>ffmpeg</b> with apt and pip install <b>youtube-dl</b>
-1. Use download_wav.py
+1. Set Playlist and get the URL of the youtube playlist
+2. Get wav file below youtube-dl commands
 
-```python
-if __name__ == '__main__':
-    # ex : BOL4 나만봄
-    # Add all of the list then it will transfer to all of the wav file
-    # Use when implement dataset
-    link = ['https://www.youtube.com/watch?v=AsXxuIdpkWM']
-    path = "/direct/path/of/your/datafolder"
-    download_youtube_wavfile(link,path)
+```shell
+youtube-dl --extract-audio --audio-format wav -i PLCVawrYUsJRvAIs5IxhbbksZtXFE0snnh 
 ```
 
-Change link list to prepare raw .wav files
+--audio-format : Automatically executre ffmpeg <br>
+-i : Identify playlist ID which placed after URL playlist=PLCVawrYUsJRvAIs5IxhbbksZtXFE0snnh
 
-2. Use spleeter to seperate vocals and MR files
+
+2. Use spleeter to seperate vocals and MR files (Can Skip)
 
 You can find <b>Separator</b> class with <b>spleeter.separator</b>
 ```python
@@ -48,3 +45,19 @@ waveform, _ = audio_loader.load('/path/to/audio/file', sample_rate=sample_rate)
 prediction = separator.separate(waveform)
 ```
 https://github.com/deezer/spleeter/wiki/4.-API-Reference#separator
+
+For convenience already prepared at data_preprocessing.py
+
+3. Change PATH if you need to change data_preprocessing.py
+```python
+if __name__ == '__main__':
+
+    # Configuration of dataset path
+    # CHANGE IF YOU NEED
+    base_path = '/home/ryan0507/VoiceConversion/data/'
+    dataset_dir = '/home/ryan0507/VoiceConversion/data'
+```
+
+4. After Run data_preprocessing.py you can get vocal and MR files for the playlist
+
+
