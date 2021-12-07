@@ -55,90 +55,95 @@ def train(input_A, input_B):
     print("Start Training...")
     try:
         # 훈련 시작
-        for epoch in range(saved_global_step + 1, n_epochs) :
-            print("Epoch : %d " % epoch ) 
-            start_time = time.time()
-            train_A, train_B = sample_train_data(dataset_A=A_norm, dataset_B=B_norm,n_frames=n_frames) # random data
-        
-            n_samples = train_A.shape[0]
+        with strategy.scope():
+            for epoch in range(saved_global_step + 1, n_epochs) :
+                print("Epoch : %d " % epoch )
+                start_time = time.time()
+                train_A, train_B = sample_train_data(dataset_A=A_norm, dataset_B=B_norm,n_frames=n_frames) # random data
 
-            # Cycle beGAN
-            if began == True:
-                # 일단 여기 뭔지 모르겠음
-                for i in range(n_samples) : # mini_ batch_size = 1
-                    n_iter = n_samples * epoch + i
-                    if n_iter % 50 == 0:
-                        
-                        k_t_A = k_t_A + (lambda_k_A *balance_A)
-                        if k_t_A > 1:
-                            k_t_A = 1
-                        if k_t_A < 0 :
-                            k_t_A = 0
-                        
-                        k_t_B = k_t_B + (lambda_k_B *balance_B)
-                        if k_t_B > 1.0:
-                            k_t_B = 1.0
-                        if k_t_B < 0. :
-                            k_t_B = 0.
-                
-                    if n_iter > 10000 :
-                        identity_lambda = 0
-                    if n_iter > 200000 :
-                        generator_lr = max(0, generator_lr - generator_lr_decay)
-                        discriminator_lr = max(0, discriminator_lr - discriminator_lr_decay)
-                
-                    start = i
-                    end = start + 1
-                    # Loss 구하기
-                    generator_loss, discriminator_loss, measure_A, measure_B, k_t_A, k_t_B, balance_A, balance_B = model.train(
-                                    input_A=train_A[start:end], input_B=train_B[start:end], 
-                                    lambda_cycle=lambda_cycle,
-                                    lambda_identity=lambda_identity,
-                                    gamma_A=gamma_A, gamma_B=gamma_B, lambda_k_A=lambda_k_A, lambda_k_B=lambda_k_B,
-                                    generator_learning_rate=generator_learning_rate,
-                                    discriminator_learning_rate=discriminator_learning_rate, 
-                                    k_t_A = k_t_A, k_t_B = k_t_B)
-            # CycleGAN
-            elif began == False:
-                for i in range(n_samples) : # mini_ batch_size = 1
-                    n_iter = n_samples * epoch + i
-                    
-                    # 비갠은 이부분에서 k_t_A추가 
-                    
-                    if n_iter > 10000 :
-                        identity_lambda = 0
-                    if n_iter > 200000 :
-                        generator_lr = max(0, generator_lr - generator_lr_decay)
-                        discriminator_lr = max(0, discriminator_lr - discriminator_lr_decay)
-                    
-                    start = i
-                    end = start + 1
-                    
-                    # 로스형식도 다름
-                    generator_loss, discriminator_loss = model.train(input_A = train_A[start:end], 
-                                                                    input_B = train_B[start:end], 
-                                                                    cycle_lambda = cycle_lambda,
-                                                                    identity_lambda = identity_lambda,
-                                                                    generator_lr = generator_lr,
-                                                                    discriminator_lr = discriminator_lr)
-            
-            
-            end_time = time.time()
-            epoch_time = end_time-start_time
-            print("Generator Loss : %f, Discriminator Loss : %f, Time : %02d:%02d" % (generator_loss, discriminator_loss,(epoch_time % 3600 // 60),(epoch_time % 60 // 1)))
+                n_samples = train_A.shape[0]
 
-            
-            # every 에폭마다 저장
-            if epoch % checkpoint_every == 0:
-                model.save(directory = model_dir, filename = "model", epoch=epoch)
-                print(epoch, 'model save 완료')
-    
+                # Cycle beGAN
+                if began == True:
+                    # 일단 여기 뭔지 모르겠음
+                    for i in range(n_samples) : # mini_ batch_size = 1
+                        n_iter = n_samples * epoch + i
+                        if n_iter % 50 == 0:
+
+                            k_t_A = k_t_A + (lambda_k_A *balance_A)
+                            if k_t_A > 1:
+                                k_t_A = 1
+                            if k_t_A < 0 :
+                                k_t_A = 0
+
+                            k_t_B = k_t_B + (lambda_k_B *balance_B)
+                            if k_t_B > 1.0:
+                                k_t_B = 1.0
+                            if k_t_B < 0. :
+                                k_t_B = 0.
+
+                        if n_iter > 10000 :
+                            identity_lambda = 0
+                        if n_iter > 200000 :
+                            generator_lr = max(0, generator_lr - generator_lr_decay)
+                            discriminator_lr = max(0, discriminator_lr - discriminator_lr_decay)
+
+                        start = i
+                        end = start + 1
+                        # Loss 구하기
+                        generator_loss, discriminator_loss, measure_A, measure_B, k_t_A, k_t_B, balance_A, balance_B = model.train(
+                                        input_A=train_A[start:end], input_B=train_B[start:end],
+                                        lambda_cycle=lambda_cycle,
+                                        lambda_identity=lambda_identity,
+                                        gamma_A=gamma_A, gamma_B=gamma_B, lambda_k_A=lambda_k_A, lambda_k_B=lambda_k_B,
+                                        generator_learning_rate=generator_learning_rate,
+                                        discriminator_learning_rate=discriminator_learning_rate,
+                                        k_t_A = k_t_A, k_t_B = k_t_B)
+                # CycleGAN
+                elif began == False:
+                    for i in range(n_samples) : # mini_ batch_size = 1
+                        n_iter = n_samples * epoch + i
+
+                        # 비갠은 이부분에서 k_t_A추가
+
+                        if n_iter > 10000 :
+                            identity_lambda = 0
+                        if n_iter > 200000 :
+                            generator_lr = max(0, generator_lr - generator_lr_decay)
+                            discriminator_lr = max(0, discriminator_lr - discriminator_lr_decay)
+
+                        start = i
+                        end = start + 1
+
+                        # 로스형식도 다름
+                        generator_loss, discriminator_loss = model.train(input_A = train_A[start:end],
+                                                                        input_B = train_B[start:end],
+                                                                        cycle_lambda = cycle_lambda,
+                                                                        identity_lambda = identity_lambda,
+                                                                        generator_lr = generator_lr,
+                                                                        discriminator_lr = discriminator_lr)
+
+
+                end_time = time.time()
+                epoch_time = end_time-start_time
+                print("Generator Loss : %f, Discriminator Loss : %f, Time : %02d:%02d" % (generator_loss, discriminator_loss,(epoch_time % 3600 // 60),(epoch_time % 60 // 1)))
+
+
+                # every 에폭마다 저장
+                if epoch % checkpoint_every == 0:
+                    model.save(directory = model_dir, filename = "model", epoch=epoch)
+                    print(epoch, 'model save 완료')
+
     finally:
         print('잘못된 종료 또는 학습이 끝남 모델 저장')
         model.save(directory = model_dir, filename = "model", epoch=epoch)
 
 
 if __name__ == "__main__" :
+    resolver = tf.distribute.cluster_resolver.TPUClusterResolver(tpu='local')
+    tf.config.experimental_connect_to_cluster(resolver)
+    tf.tpu.experimental.initialize_tpu_system(resolver)
+    strategy = tf.distribute.experimental.TPUStrategy(resolver)
     train(input_A = dataset_A, input_B = dataset_B)
     print("Training Done!")
 
