@@ -3,6 +3,7 @@ import math
 import librosa
 import numpy as np
 import parselmouth
+import pprint
 from parselmouth.praat import call
 
 from .const import *
@@ -19,6 +20,10 @@ def preprocess_audio_file(file_path, sr=SAMPLE_RATE, pitch_shift_semi=None):
     if pitch_shift_semi is not None:
         print('Shifting pitch with semitone: {:.4f}'.format(pitch_shift_semi))
         y = pitch_shift(y, sr, pitch_shift_semi)
+    if np.any(y < -1) or np.any(y>1):
+        print(np.max(y), np.min(y))
+        y = np.clip(y,-1.0,1.0)
+        print(np.max(y), np.min(y))
 
     mu_law_compressed = mu_law_encode(y)
     extracted_pitch, pitch_mask = extract_pitch(y)
