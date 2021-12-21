@@ -12,8 +12,8 @@ if __name__ == '__main__':
 
     # Configuration of dataset path
     # CHANGE IF YOU NEED
-    base_path = '/home/ryan0507/VoiceConversion/data/'
-    dataset_dir = '/home/ryan0507/VoiceConversion/data'
+    base_path = '/nfs/home/ryan0507/VoiceConversion/data/'
+    dataset_dir = '/nfs/home/ryan0507/VoiceConversion/data'
 
 
     pattern = base_path + '*wav*'
