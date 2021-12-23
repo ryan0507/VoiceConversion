@@ -2,11 +2,11 @@ import os
 import librosa
 import numpy as np
 import soundfile as sf
-from spleeter.separator import Separator
-from spleeter.audio.adapter import AudioAdapter
+#from spleeter.separator import Separator
+#from spleeter.audio.adapter import AudioAdapter
 
 def trim_audio_data(audio_file, save_file):
-    sr = 16000
+    sr = 22050
     start = 20
     end_sec = 30
     y, sr = librosa.load(audio_file, sr=sr)
@@ -21,5 +21,5 @@ separator = Separator('spleeter:2stems')
 audio_loader = AudioAdapter.default()
 sample_rate = 16000
 trim_audio_data(base_path + file_name, base_path+'trim_'+file_name)
-separator.separate_to_file(base_path+'trim_'+file_name, dataset_dir)
+#separator.separate_to_file(base_path+'trim_'+file_name, dataset_dir)
 
